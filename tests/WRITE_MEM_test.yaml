@@ -1,0 +1,4 @@
+program:
+  - cmd: WRITE_MEM
+    offset: 144
+    src_reg: 24

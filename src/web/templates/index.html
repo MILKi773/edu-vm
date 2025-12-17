@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UVM Assembler/Interpreter Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-microchip"></i> UVM Assembler & Interpreter</h1>
+            <p class="subtitle">Веб-версия ассемблера и интерпретатора</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Левая колонка: редактор и управление -->
+            <div class="editor-section">
+                <h2 class="section-title"><i class="fas fa-code"></i> Редактор программы (YAML)</h2>
+
+                <textarea id="editor" placeholder="Введите YAML программу...">program:
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 123
+  - cmd: WRITE_MEM
+    addr: 100
+    src_reg: 0
+  - cmd: READ_MEM
+    addr: 100
+    reg: 1</textarea>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="memSize"><i class="fas fa-memory"></i> Размер памяти (слов):</label>
+                        <input type="number" id="memSize" value="65536" min="1">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="regsCount"><i class="fas fa-registered"></i> Количество регистров:</label>
+                        <input type="number" id="regsCount" value="32" min="1" max="1024">
+                    </div>
+
+                    <div class="control-group">
+                        <label for="dumpRange"><i class="fas fa-database"></i> Диапазон дампа:</label>
+                        <input type="text" id="dumpRange" value="100-220" placeholder="start-end">
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button id="runBtn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Assemble & Run
+                    </button>
+                    <button id="downloadBinBtn" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Скачать .bin
+                    </button>
+                    <button id="saveYamlBtn" class="btn btn-success">
+                        <i class="fas fa-save"></i> Сохранить .yaml
+                    </button>
+                    <button id="clearBtn" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Очистить
+                    </button>
+                </div>
+
+                <div class="examples">
+                    <h3><i class="fas fa-graduation-cap"></i> Примеры программ:</h3>
+                    <div class="example-buttons">
+                        <button class="example-btn" data-example="simple">Простая программа</button>
+                        <button class="example-btn" data-example="sqrt">Бинарная операция (BIN_OP)</button>
+                        <button class="example-btn" data-example="memory_ops">Операции с памятью</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка: вывод и результаты -->
+            <div class="output-section">
+                <h2 class="section-title"><i class="fas fa-terminal"></i> Результаты</h2>
+
+                <div id="status" class="status"></div>
+
+                <div class="log-area">
+                    <h3><i class="fas fa-list"></i> Лог выполнения:</h3>
+                    <div id="logOutput" class="output-area"></div>
+                </div>
+
+                <div class="memory-dump">
+                    <h3><i class="fas fa-table"></i> Дамп памяти:</h3>
+                    <div class="table-container">
+                        <table id="memoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Адрес</th>
+                                    <th>Значение</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Данные будут заполнены JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="registers-info">
+                    <h3><i class="fas fa-sliders-h"></i> Регистры (первые 8):</h3>
+                    <div id="registersOutput" class="output-area"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Элементы DOM
+        const editor = document.getElementById('editor');
+        const runBtn = document.getElementById('runBtn');
+        const downloadBinBtn = document.getElementById('downloadBinBtn');
+        const saveYamlBtn = document.getElementById('saveYamlBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const status = document.getElementById('status');
+        const logOutput = document.getElementById('logOutput');
+        const memoryTable = document.getElementById('memoryTable');
+        const registersOutput = document.getElementById('registersOutput');
+
+        // Примеры программ
+        document.querySelectorAll('.example-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const exampleName = btn.dataset.example;
+                const response = await fetch(`/api/example/${exampleName}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    editor.value = data.yaml;
+                    showStatus('Пример загружен!', 'success');
+                } else {
+                    showStatus('Ошибка загрузки примера', 'error');
+                }
+            });
+        });
+
+        // Запуск программы
+        runBtn.addEventListener('click', async () => {
+            const yamlText = editor.value;
+            const memSize = document.getElementById('memSize').value;
+            const regsCount = document.getElementById('regsCount').value;
+            const dumpRange = document.getElementById('dumpRange').value;
+
+            // Показываем индикатор загрузки
+            runBtn.innerHTML = '<div class="loading"></div> Выполнение...';
+            runBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/assemble_run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        yaml: yamlText,
+                        mem_size: memSize,
+                        regs_count: regsCount,
+                        dump_range: dumpRange
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showStatus('Программа успешно выполнена!', 'success');
+
+                    // Обновляем лог
+                    logOutput.innerHTML = `
+IR представление:\n${JSON.stringify(data.ir, null, 2)}\n\n
+${data.log}\n
+Двоичный размер: ${data.binary_size} байт\n
+Hex: ${data.binary_hex}
+                    `;
+
+                    // Обновляем таблицу памяти
+                    updateMemoryTable(data.mem_dump);
+
+                    // Обновляем информацию о регистрах
+                    updateRegistersInfo(data.registers);
+                } else {
+                    showStatus(`Ошибка: ${data.error}`, 'error');
+                    logOutput.innerHTML = data.traceback || data.error;
+                }
+            } catch (error) {
+                showStatus(`Ошибка сети: ${error.message}`, 'error');
+                logOutput.innerHTML = error.stack || error.message;
+            } finally {
+                // Восстанавливаем кнопку
+                runBtn.innerHTML = '<i class="fas fa-play"></i> Assemble & Run';
+                runBtn.disabled = false;
+            }
+        });
+
+        // Скачивание бинарного файла
+        downloadBinBtn.addEventListener('click', async () => {
+            const yamlText = editor.value;
+
+            downloadBinBtn.innerHTML = '<div class="loading"></div> Генерация...';
+            downloadBinBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/download_binary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ yaml: yamlText })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'program.bin';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showStatus('Бинарный файл скачан!', 'success');
+                } else {
+                    const error = await response.json();
+                    showStatus(`Ошибка: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Ошибка: ${error.message}`, 'error');
+            } finally {
+                downloadBinBtn.innerHTML = '<i class="fas fa-download"></i> Скачать .bin';
+                downloadBinBtn.disabled = false;
+            }
+        });
+
+        // Сохранение YAML файла
+        saveYamlBtn.addEventListener('click', async () => {
+            const yamlText = editor.value;
+            const filename = prompt('Введите имя файла (без расширения):', 'program');
+
+            if (!filename) return;
+
+            saveYamlBtn.innerHTML = '<div class="loading"></div> Сохранение...';
+            saveYamlBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/save_yaml', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        yaml: yamlText,
+                        filename: filename
+                    })
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename.endsWith('.yaml') || filename.endsWith('.yml') ?
+                        filename : `${filename}.yaml`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                    showStatus('YAML файл сохранен!', 'success');
+                } else {
+                    const error = await response.json();
+                    showStatus(`Ошибка: ${error.error}`, 'error');
+                }
+            } catch (error) {
+                showStatus(`Ошибка: ${error.message}`, 'error');
+            } finally {
+                saveYamlBtn.innerHTML = '<i class="fas fa-save"></i> Сохранить .yaml';
+                saveYamlBtn.disabled = false;
+            }
+        });
+
+        // Очистка редактора
+        clearBtn.addEventListener('click', () => {
+            if (confirm('Очистить редактор?')) {
+                editor.value = '';
+                showStatus('Редактор очищен', 'success');
+            }
+        });
+
+        // Функции обновления интерфейса
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 5000);
+        }
+
+        function updateMemoryTable(memDump) {
+            const tbody = memoryTable.querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (!memDump || memDump.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell();
+                cell.colSpan = 2;
+                cell.textContent = 'Нет данных для отображения';
+                return;
+            }
+
+            memDump.forEach(item => {
+                const row = tbody.insertRow();
+                const addrCell = row.insertCell();
+                const valueCell = row.insertCell();
+
+                addrCell.textContent = item.address;
+                valueCell.textContent = item.value;
+            });
+        }
+
+        function updateRegistersInfo(registers) {
+            if (!registers || registers.length === 0) {
+                registersOutput.textContent = 'Нет данных о регистрах';
+                return;
+            }
+
+            // Показываем только первые 8 регистров для компактности
+            const first8 = registers.slice(0, 8);
+            registersOutput.innerHTML = first8.map((value, index) =>
+                `R${index}: ${value} (0x${value.toString(16)})`
+            ).join('\n');
+
+            if (registers.length > 8) {
+                registersOutput.innerHTML += `\n\n... и еще ${registers.length - 8} регистров`;
+            }
+        }
+
+        // Загрузка начального примера
+        window.addEventListener('load', () => {
+            showStatus('Готов к работе! Введите программу в YAML формате и нажмите "Assemble & Run"', 'success');
+        });
+    </script>
+</body>
+</html>

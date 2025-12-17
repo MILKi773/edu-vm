@@ -1,0 +1,100 @@
+program:
+  # Входной вектор (нулевые и большие значения) в памяти 500..506
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 0
+  - cmd: WRITE_MEM
+    offset: 500
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 1
+  - cmd: WRITE_MEM
+    offset: 501
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 1048575   # 2^20 - 1 (макс. для поля B в LOAD_CONST)
+  - cmd: WRITE_MEM
+    offset: 502
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 1000000
+  - cmd: WRITE_MEM
+    offset: 503
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 65535
+  - cmd: WRITE_MEM
+    offset: 504
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 1048575
+  - cmd: WRITE_MEM
+    offset: 505
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 999999
+  - cmd: WRITE_MEM
+    offset: 506
+    src_reg: 0
+
+  # Вычисляем sqrt и записываем результаты в 600..606
+  - cmd: SQRT
+    reg: 2
+    addr: 500
+  - cmd: WRITE_MEM
+    offset: 600
+    src_reg: 2
+
+  - cmd: SQRT
+    reg: 2
+    addr: 501
+  - cmd: WRITE_MEM
+    offset: 601
+    src_reg: 2
+
+  - cmd: SQRT
+    reg: 2
+    addr: 502
+  - cmd: WRITE_MEM
+    offset: 602
+    src_reg: 2
+
+  - cmd: SQRT
+    reg: 2
+    addr: 503
+  - cmd: WRITE_MEM
+    offset: 603
+    src_reg: 2
+
+  - cmd: SQRT
+    reg: 2
+    addr: 504
+  - cmd: WRITE_MEM
+    offset: 604
+    src_reg: 2
+
+  - cmd: SQRT
+    reg: 2
+    addr: 505
+  - cmd: WRITE_MEM
+    offset: 605
+    src_reg: 2
+
+  - cmd: SQRT
+    reg: 2
+    addr: 506
+  - cmd: WRITE_MEM
+    offset: 606
+    src_reg: 2

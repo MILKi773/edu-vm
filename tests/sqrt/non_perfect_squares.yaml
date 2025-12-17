@@ -1,0 +1,100 @@
+program:
+  # Входной вектор (неполные квадраты) в памяти 300..306
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 2
+  - cmd: WRITE_MEM
+    offset: 300
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 3
+  - cmd: WRITE_MEM
+    offset: 301
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 5
+  - cmd: WRITE_MEM
+    offset: 302
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 10
+  - cmd: WRITE_MEM
+    offset: 303
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 20
+  - cmd: WRITE_MEM
+    offset: 304
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 50
+  - cmd: WRITE_MEM
+    offset: 305
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 80
+  - cmd: WRITE_MEM
+    offset: 306
+    src_reg: 0
+
+  # Вычисляем sqrt и записываем результаты в 400..406
+  - cmd: SQRT
+    reg: 1
+    addr: 300
+  - cmd: WRITE_MEM
+    offset: 400
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 301
+  - cmd: WRITE_MEM
+    offset: 401
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 302
+  - cmd: WRITE_MEM
+    offset: 402
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 303
+  - cmd: WRITE_MEM
+    offset: 403
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 304
+  - cmd: WRITE_MEM
+    offset: 404
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 305
+  - cmd: WRITE_MEM
+    offset: 405
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 306
+  - cmd: WRITE_MEM
+    offset: 406
+    src_reg: 1

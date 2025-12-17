@@ -1,0 +1,20 @@
+[project]
+name = "uvm"
+version = "0.1.0"
+package-mode = false
+description = "Var 9"
+authors = [
+    {name = "eternal"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "pyside6 (>=6.10.1,<7.0.0)",
+    "Flask (>=3.0.0)",
+    "PyYAML (>=6.0.3)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

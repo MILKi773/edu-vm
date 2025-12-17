@@ -1,0 +1,30 @@
+program:
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 81
+  - cmd: WRITE_MEM
+    offset: 100
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 10
+  - cmd: WRITE_MEM
+    offset: 101
+    src_reg: 0
+
+  # === SQRT ===
+  - cmd: SQRT
+    reg: 1
+    addr: 100
+  - cmd: WRITE_MEM
+    offset: 200
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 101
+  - cmd: WRITE_MEM
+    offset: 201
+    src_reg: 1
+# 200-201

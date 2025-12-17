@@ -1,0 +1,4 @@
+program:
+  - cmd: READ_MEM
+    reg: 29
+    addr: 852

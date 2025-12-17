@@ -1,0 +1,100 @@
+program:
+  # Write input vector values to memory[100..106]
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 1
+  - cmd: WRITE_MEM
+    offset: 100
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 4
+  - cmd: WRITE_MEM
+    offset: 101
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 9
+  - cmd: WRITE_MEM
+    offset: 102
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 16
+  - cmd: WRITE_MEM
+    offset: 103
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 25
+  - cmd: WRITE_MEM
+    offset: 104
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 36
+  - cmd: WRITE_MEM
+    offset: 105
+    src_reg: 0
+
+  - cmd: LOAD_CONST
+    reg: 0
+    value: 49
+  - cmd: WRITE_MEM
+    offset: 106
+    src_reg: 0
+
+  # Compute sqrt and write results to 200..206
+  - cmd: SQRT
+    reg: 1
+    addr: 100
+  - cmd: WRITE_MEM
+    offset: 200
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 101
+  - cmd: WRITE_MEM
+    offset: 201
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 102
+  - cmd: WRITE_MEM
+    offset: 202
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 103
+  - cmd: WRITE_MEM
+    offset: 203
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 104
+  - cmd: WRITE_MEM
+    offset: 204
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 105
+  - cmd: WRITE_MEM
+    offset: 205
+    src_reg: 1
+
+  - cmd: SQRT
+    reg: 1
+    addr: 106
+  - cmd: WRITE_MEM
+    offset: 206
+    src_reg: 1

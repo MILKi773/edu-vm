@@ -1,0 +1,4 @@
+program:
+  - cmd: LOAD_CONST
+    reg: 24
+    value: 710
