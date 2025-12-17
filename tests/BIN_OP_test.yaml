@@ -13,15 +13,15 @@ program:
     offset: 101
     src_reg: 0
 
-  # === SQRT ===
-  - cmd: SQRT
+  # === BIN_OP ===
+  - cmd: BIN_OP
     reg: 1
     addr: 100
   - cmd: WRITE_MEM
     offset: 200
     src_reg: 1
 
-  - cmd: SQRT
+  - cmd: BIN_OP
     reg: 1
     addr: 101
   - cmd: WRITE_MEM
